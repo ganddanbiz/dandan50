@@ -5,13 +5,13 @@
 |------|------|
 | 블로그명 | 단단한 50 |
 | 부제목 | 50대 직장인의 돈과 몸, 둘 다 단단하게 |
-| 도메인 | dandan50.com (미정 — Vercel 배포 후 연결) |
+| 도메인 | dandan50.vercel.app (dandan50.com 연결 예정) |
 | 언어 | 한국어 |
 | 주제 | 재테크 + 건강 (50대 타겟 듀얼 카테고리) |
 | 타겟 독자 | 40~60대 직장인·자영업자 |
-| AI 모델 | Gemini 2.5 Flash |
+| AI 모델 | Claude Haiku 4.5 |
 | 이미지 | Unsplash API |
-| DB | Neon PostgreSQL (신규 생성 필요) |
+| DB | Neon PostgreSQL (ap-southeast-1, dandan50 DB) |
 
 ## 코드베이스 출처
 - **110 재테크스토리 코드를 복사·수정한 프로젝트**
@@ -53,27 +53,29 @@ WHERE slug ~ '^(money|health|life)-[0-9]+$'
 ```
 
 ## 환경변수 (.env.local)
-- `GEMINI_API_KEY` — Gemini API
+- `ANTHROPIC_API_KEY` — Claude API
 - `UNSPLASH_ACCESS_KEY` — 이미지
 - `DATABASE_URL` — Neon PostgreSQL
-- `NEXT_PUBLIC_SITE_URL=https://dandan50.com`
+- `NEXT_PUBLIC_SITE_URL=https://dandan50.vercel.app`
 - `NEXT_PUBLIC_SITE_NAME=단단한 50`
 
-## GitHub Actions 시크릿 (ganddanbiz/dandan50 — 저장소 생성 필요)
+## GitHub Actions 시크릿 (ganddanbiz/dandan50)
 - `DATABASE_URL`
-- `GEMINI_API_KEY`
+- `ANTHROPIC_API_KEY`
 - `UNSPLASH_ACCESS_KEY`
-- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SITE_URL` (현재: https://dandan50.vercel.app — 도메인 연결 후 갱신)
 
 ## 발행 현황
-- 총 0편 발행 (초기 설정 중)
-- 다음 주제: money-001 (오늘 요일에 따라 결정)
+- 총 2편 발행 (health-001, health-002 / 2026-06-25)
+- 다음 주제: 오늘 요일에 따라 money 또는 health 자동 선택
 
 ## 설정 완료 체크리스트
-- [ ] Neon DB 생성 + `sql/init.pg.sql` 실행
-- [ ] `.env.local` API 키 입력
-- [ ] Vercel 프로젝트 생성 + 환경변수 등록
-- [ ] GitHub 저장소 `ganddanbiz/dandan50` 생성
-- [ ] GitHub Secrets 등록
-- [ ] `npm run generate` 로컬 테스트
-- [ ] Manager `CLAUDE.md` 대시보드에 150 추가
+- [x] Neon DB 생성 + `sql/init.pg.sql` 실행 (ap-southeast-1, dandan50 DB)
+- [x] `.env.local` API 키 입력
+- [x] Vercel 프로젝트 생성 + 환경변수 등록 (tugman77-8039s-projects/dandan50)
+- [x] GitHub 저장소 `ganddanbiz/dandan50` 생성
+- [x] GitHub Secrets 등록 (DATABASE_URL, GEMINI_API_KEY, UNSPLASH_ACCESS_KEY, NEXT_PUBLIC_SITE_URL)
+- [x] `npm run generate` 로컬 테스트 (health-001 생성 확인)
+- [x] Manager `CLAUDE.md` 대시보드에 150 추가
+- [ ] 도메인 `dandan50.com` 구매 + Vercel 연결
+- [ ] GitHub Secret `NEXT_PUBLIC_SITE_URL` → `https://dandan50.com` 갱신

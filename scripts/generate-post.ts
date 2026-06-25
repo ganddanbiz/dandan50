@@ -8,7 +8,7 @@
  *   - 재테크:건강 = 6:4 비율 유지
  */
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { allTopics, Topic } from "../src/lib/topics";
 import * as dotenv from "dotenv";
@@ -19,14 +19,13 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const sql = neon(process.env.DATABASE_URL!);
 
-// ── Gemini 클라이언트 ─────────────────────────────
-const apiKey = process.env.GEMINI_API_KEY;
+// ── Claude 클라이언트 ─────────────────────────────
+const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) {
-  console.error("❌ GEMINI_API_KEY가 .env.local에 설정되어 있지 않습니다.");
+  console.error("❌ ANTHROPIC_API_KEY가 .env.local에 설정되어 있지 않습니다.");
   process.exit(1);
 }
-const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const anthropic = new Anthropic({ apiKey });
 
 // ── 카테고리 → Unsplash 검색어 맵 ─────────────────
 const CATEGORY_QUERY: Record<string, string> = {
@@ -348,10 +347,14 @@ async function main() {
 
     writeLog(`📝 주제 선택: [${topic.level}] ${topic.index}/130 - ${topic.title}`);
 
-    writeLog("🤖 Gemini로 글 생성 중...");
+    writeLog("🤖 Claude로 글 생성 중...");
     const prompt = buildPrompt(topic);
-    const result = await model.generateContent(prompt);
-    const rawContent = result.response.text();
+    const message = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 4096,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const rawContent = (message.content[0] as { type: string; text: string }).text;
     const content = cleanHtml(rawContent);
     writeLog(`✍️  생성 완료 (${content.length}자)`);
 

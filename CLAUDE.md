@@ -1,4 +1,4 @@
-# 150 단단한 50 — CLAUDE.md
+# 105 단단한 50 — CLAUDE.md
 
 ## 블로그 기본 정보
 | 항목 | 내용 |
@@ -15,7 +15,7 @@
 
 ## 코드베이스 출처
 - **110 재테크스토리 코드를 복사·수정한 프로젝트**
-- 코드 참조 시: `010 Blog_Manger/110 Blog_Jaetechstory/`
+- 코드 참조 시: `100 Blog_Manger/101 Blog_Jaetechstory/`
 
 ## 핵심 차별화 (50대 특화)
 - **듀얼 카테고리**: money(재테크) + health(건강) + life(일상) — 다른 블로그와 다름
@@ -25,7 +25,7 @@
 
 ## 프로젝트 구조
 ```
-150 blog_Dandan50/
+105 Blog_Dandan50/
 ├── src/lib/topics.ts         ← 130개 주제 (money 78 + health 48 + life 4)
 ├── scripts/generate-post.ts  ← AI 글 자동 생성 (요일 기반 카테고리 선택)
 ├── scripts/generate.log      ← 발행 로그
@@ -36,7 +36,7 @@
 
 ## 발행 명령
 ```bash
-cd "150 blog_Dandan50"
+cd "100 Blog_Manger/105 Blog_Dandan50"
 npm run generate
 ```
 

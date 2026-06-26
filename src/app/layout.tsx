@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_KR } from "next/font/google";
+import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import Footer from "@/components/Footer";
@@ -9,6 +9,12 @@ const notoSansKR = Noto_Sans_KR({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   variable: "--font-noto-sans-kr",
+});
+
+const notoSerifKR = Noto_Serif_KR({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-noto-serif-kr",
 });
 
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "내 블로그";
@@ -56,7 +62,7 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang="ko" className={`${notoSansKR.variable} h-full`}>
+    <html lang="ko" className={`${notoSansKR.variable} ${notoSerifKR.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
         {children}
         <Footer />

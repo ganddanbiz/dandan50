@@ -1,25 +1,25 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap");
 @import "tailwindcss";
 
-/* ── Design Tokens ──────────────────────────────── */
+/* ── Design Tokens (단단한 50 — Forest Green & Beige) */
 :root {
-  --bg:           #f4f5f9;
+  --bg:           #f8f5f0;
   --bg-card:      #ffffff;
-  --ink:          #09090b;
-  --ink-mid:      #3f3f46;
-  --ink-muted:    #71717a;
-  --ink-faint:    #a1a1aa;
-  --border:       #e4e4e7;
-  --border-light: #f4f4f5;
+  --ink:          #0f2418;
+  --ink-mid:      #2a4a34;
+  --ink-muted:    #5a7862;
+  --ink-faint:    #96b09c;
+  --border:       #d0e0d4;
+  --border-light: #e8f0e8;
 
-  --accent:       #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-faint: #eff6ff;
-  --accent-2:     #7c3aed;
+  --accent:       #2d7a4f;
+  --accent-hover: #1f5a3a;
+  --accent-faint: #edf7f0;
+  --accent-2:     #c07820;
 
-  --header-bg:    #0f0f13;
-  --header-text:  #f8fafc;
-  --header-muted: #94a3b8;
+  --header-bg:    #1b4d2e;
+  --header-text:  #f0f8f2;
+  --header-muted: #7ab890;
 
   /* Category */
   --cat-before-c:  #0369a1; --cat-before-bg:  #e0f2fe;
@@ -38,7 +38,7 @@
 /* ── Theme fonts ────────────────────────────────── */
 @theme inline {
   --font-sans:  var(--font-noto-sans-kr), "Apple SD Gothic Neo", system-ui, sans-serif;
-  --font-serif: "Inter", system-ui, sans-serif;
+  --font-serif: var(--font-noto-serif-kr), "Noto Serif KR", "Apple SD Gothic Neo", Georgia, serif;
 }
 
 /* ── Base ───────────────────────────────────────── */
@@ -476,4 +476,43 @@ body {
 
 @media (min-width: 768px) {
   .feed-ad-slot { padding: 1.25rem 3rem; }
+}
+
+/* ── Mobile readability (50대 배려: 큰 글씨) ─────── */
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+
+  .prose {
+    font-size: 1.125rem;
+    line-height: 2.1;
+  }
+  .prose h2 {
+    font-size: 1.25rem;
+    margin-top: 1.75em;
+  }
+  .prose h3 { font-size: 1.125rem; }
+  .prose p  { margin-bottom: 1.35em; }
+
+  .prose table {
+    font-size: 0.875rem;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .feed-article { padding: 1.25rem 1rem; }
+  .feed-ad-slot { padding: 0.875rem 1rem; }
+
+  .post-card-body { padding: 0.875rem 1rem 1rem; }
+  .post-card-title { font-size: 1rem; }
+
+  .page-btn { min-width: 2.75rem; height: 2.75rem; font-size: 1rem; }
+}
+
+/* 전체 prose 기본 폰트 크기 (데스크탑) */
+@media (min-width: 641px) {
+  .prose {
+    font-size: 1.0625rem;
+    line-height: 1.95;
+  }
 }

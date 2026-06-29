@@ -86,13 +86,6 @@ export default async function PostPage({ params }: Props) {
       })
     : null;
 
-  const levelLabel = post.slug?.startsWith("basic-") ? "기초"
-    : post.slug?.startsWith("mid-") ? "중급"
-    : post.slug?.startsWith("adv-") ? "고급"
-    : null;
-  const levelCls = levelLabel === "기초" ? "badge badge-basic"
-    : levelLabel === "중급" ? "badge badge-mid"
-    : "badge badge-adv";
 
   return (
     <>
@@ -157,9 +150,6 @@ export default async function PostPage({ params }: Props) {
               <span className={catBadgeClass[post.category] || "badge"}>
                 {catLabels[post.category] || post.category}
               </span>
-              {levelLabel && (
-                <span className={levelCls}>{levelLabel}</span>
-              )}
               {publishedDate && (
                 <span style={{ fontSize: "0.75rem", color: "var(--ink-faint)", marginLeft: "0.25rem" }}>
                   {publishedDate}
@@ -230,8 +220,11 @@ export default async function PostPage({ params }: Props) {
             </div>
           </article>
 
-          {/* ── 쿠팡 광고 ──────────────────────── */}
-          <CoupangAd />
+          {/* ── 쿠팡 리더보드 광고 ─────────────── */}
+          <CoupangAd variant="leaderboard" />
+
+          {/* ── 쿠팡 스퀘어 광고 ───────────────── */}
+          <CoupangAd variant="square" />
 
           {/* ── 댓글 ────────────────────────────── */}
           <CommentSection postId={post.id} />

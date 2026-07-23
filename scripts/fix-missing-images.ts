@@ -12,18 +12,29 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 const sql = neon(process.env.DATABASE_URL!);
 
 // 카테고리 기본 검색어 (폴백용)
+// 단단한50 실제 카테고리: money(재테크) · health(건강) · life(일상)
 const CATEGORY_FALLBACK_QUERIES: Record<string, string[]> = {
-  before:  ["personal finance planning desk", "savings money coins jar", "budget notebook calculator", "financial planning office"],
-  bidding: ["stock market trading charts", "investment portfolio growth", "stock exchange broker"],
-  after:   ["asset management wealth", "retirement planning couple", "portfolio diversification"],
-  tax:     ["tax return documents", "accountant office calculator", "tax filing paperwork"],
-  law:     ["legal contract documents", "lawyer office meeting", "financial compliance"],
-  ai:      ["technology AI computer", "fintech digital payment", "machine learning data"],
+  money:  ["personal finance planning desk", "retirement savings couple senior", "investment portfolio growth", "budget notebook calculator"],
+  health: ["senior exercise fitness", "older adult walking park", "healthy food vegetables", "stretching workout mature adult"],
+  life:   ["senior couple lifestyle home", "mature adult hobby", "everyday life older people"],
 };
 
 // 한국어 제목 → 영어 키워드 매핑
 function titleToKeywords(title: string): string {
   const map: [RegExp, string][] = [
+    // ── 건강(health) 주제 우선 매칭 ──
+    [/걷기|달리기|조깅|산책/, "senior walking running park exercise"],
+    [/수영|아쿠아/, "swimming pool senior exercise"],
+    [/근력|근육|근감소|웨이트|홈트/, "strength training senior muscle fitness"],
+    [/스트레칭|요가|필라테스|유연/, "stretching yoga mature adult"],
+    [/유산소|운동|체력/, "senior fitness exercise active"],
+    [/혈압|혈당|당뇨|콜레스테롤|심장/, "health checkup blood pressure senior"],
+    [/식단|영양|단백질|다이어트|식이/, "healthy food nutrition vegetables"],
+    [/수면|잠|불면/, "senior sleeping rest bedroom"],
+    [/관절|무릎|허리|통증|디스크/, "senior joint knee back health"],
+    [/치매|뇌|기억력/, "brain health senior memory"],
+    [/건강|면역|노화|웰빙/, "senior health wellness active lifestyle"],
+    // ── 재테크(money) 주제 ──
     [/달러|환율|외환/, "dollar currency exchange rate"],
     [/금리|기준금리|이자/, "interest rate bank central"],
     [/인플레이션|물가/, "inflation economy prices"],
@@ -50,7 +61,7 @@ function titleToKeywords(title: string): string {
   for (const [pattern, keywords] of map) {
     if (pattern.test(title)) return keywords;
   }
-  return "finance money investment people";
+  return "senior active lifestyle people";
 }
 
 interface UnsplashResult {
@@ -149,7 +160,7 @@ async function fetchUnsplashImages(
         usedIds.add(baseUrl);
         results.push({
           url: photo.urls.regular,
-          attribution: `<a href="${photo.links.html}?utm_source=jaetechstory&utm_medium=referral" rel="noopener noreferrer" style="color:rgba(255,255,255,0.9);">${photo.user.name}</a> / Unsplash`,
+          attribution: `<a href="${photo.links.html}?utm_source=dandan50&utm_medium=referral" rel="noopener noreferrer" style="color:rgba(255,255,255,0.9);">${photo.user.name}</a> / Unsplash`,
         });
         if (results.length >= count) break;
       }

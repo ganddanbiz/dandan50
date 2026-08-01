@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>
-            {process.env.NEXT_PUBLIC_SITE_NAME || "내 블로그"}
+            {process.env.NEXT_PUBLIC_SITE_NAME || "단단한 50"}
           </h1>
 
           <p style={{

@@ -1,3 +1,4 @@
+import { SITE_URL, SITE_NAME } from "@/lib/seo";
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
 import Script from "next/script";
@@ -17,8 +18,8 @@ const notoSerifKR = Noto_Serif_KR({
   variable: "--font-noto-serif-kr",
 });
 
-const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "내 블로그";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const siteName = SITE_NAME;
+const siteUrl = SITE_URL;
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION;
 const naverVerification = process.env.NEXT_PUBLIC_NAVER_VERIFICATION;

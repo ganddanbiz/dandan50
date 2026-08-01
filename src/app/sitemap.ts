@@ -1,8 +1,9 @@
+import { SITE_URL } from "@/lib/seo";
 import type { MetadataRoute } from "next";
 import sql from "@/lib/db";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_URL;
 
   const rows = await sql`SELECT slug, updated_at FROM posts WHERE status = 'published' ORDER BY published_at DESC`;
 

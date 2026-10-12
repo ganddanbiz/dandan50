@@ -53,7 +53,8 @@ WHERE slug ~ '^(money|health|life)-[0-9]+$'
 ```
 
 ## 환경변수 (.env.local)
-- `ANTHROPIC_API_KEY` — Claude API
+- `CLAUDE_CODE_OAUTH_TOKEN` — 구독 인증 (우선). `claude setup-token`으로 발급
+- `BLOG_ANTHROPIC_API_KEY` — API 키 폴백. **`ANTHROPIC_API_KEY`라는 이름은 쓰지 않는다** — SDK가 자동으로 집어 구독 인증을 덮어쓴다
 - `UNSPLASH_ACCESS_KEY` — 이미지
 - `DATABASE_URL` — Neon PostgreSQL
 - `NEXT_PUBLIC_SITE_URL=https://dandan50.vercel.app`
@@ -61,7 +62,8 @@ WHERE slug ~ '^(money|health|life)-[0-9]+$'
 
 ## GitHub Actions 시크릿 (ganddanbiz/dandan50)
 - `DATABASE_URL`
-- `ANTHROPIC_API_KEY`
+- `CLAUDE_CODE_OAUTH_TOKEN`
+- `BLOG_ANTHROPIC_API_KEY` (폴백, 없어도 동작)
 - `UNSPLASH_ACCESS_KEY`
 - `NEXT_PUBLIC_SITE_URL` (현재: https://dandan50.vercel.app — 도메인 연결 후 갱신)
 

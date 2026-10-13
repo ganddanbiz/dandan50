@@ -57,7 +57,7 @@ WHERE slug ~ '^(money|health|life)-[0-9]+$'
 - `BLOG_ANTHROPIC_API_KEY` — API 키 폴백. **`ANTHROPIC_API_KEY`라는 이름은 쓰지 않는다** — SDK가 자동으로 집어 구독 인증을 덮어쓴다
 - `UNSPLASH_ACCESS_KEY` — 이미지
 - `DATABASE_URL` — Neon PostgreSQL
-- `NEXT_PUBLIC_SITE_URL=https://dandan50.vercel.app`
+- `NEXT_PUBLIC_SITE_URL=https://dandan50-blog.vercel.app`
 - `NEXT_PUBLIC_SITE_NAME=단단한 50`
 
 ## GitHub Actions 시크릿 (ganddanbiz/dandan50)
@@ -65,7 +65,7 @@ WHERE slug ~ '^(money|health|life)-[0-9]+$'
 - `CLAUDE_CODE_OAUTH_TOKEN`
 - `BLOG_ANTHROPIC_API_KEY` (폴백, 없어도 동작)
 - `UNSPLASH_ACCESS_KEY`
-- `NEXT_PUBLIC_SITE_URL` (현재: https://dandan50.vercel.app — 도메인 연결 후 갱신)
+- `NEXT_PUBLIC_SITE_URL` (현재: https://dandan50-blog.vercel.app)
 
 ## 발행 현황
 - 총 2편 발행 (health-001, health-002 / 2026-06-25)
@@ -79,8 +79,7 @@ WHERE slug ~ '^(money|health|life)-[0-9]+$'
 - [x] GitHub Secrets 등록 (DATABASE_URL, GEMINI_API_KEY, UNSPLASH_ACCESS_KEY, NEXT_PUBLIC_SITE_URL)
 - [x] `npm run generate` 로컬 테스트 (health-001 생성 확인)
 - [x] Manager `CLAUDE.md` 대시보드에 150 추가
-- [ ] 도메인 `dandan50.com` 구매 + Vercel 연결
-- [ ] GitHub Secret `NEXT_PUBLIC_SITE_URL` → `https://dandan50.com` 갱신
+- [x] 도메인: dandan50.com 미구매 결정 (2026-10-14) — dandan50-blog.vercel.app 사용
 
 
 ## 검수 및 수정 절차

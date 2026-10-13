@@ -13,25 +13,6 @@ export default function ContactPage() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
 
-      {/* 헤더 */}
-      <header style={{ background: "var(--header-bg)" }}>
-        <div style={{ maxWidth: "52rem", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
-          <Link
-            href="/"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.875rem",
-              color: "var(--header-muted)",
-              textDecoration: "none",
-            }}
-          >
-            ← {siteName}
-          </Link>
-        </div>
-      </header>
-
       {/* 본문 */}
       <main style={{ maxWidth: "40rem", margin: "0 auto", padding: "3rem 1.5rem 5rem" }}>
         <h1 style={{

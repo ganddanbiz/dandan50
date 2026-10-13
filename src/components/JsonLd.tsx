@@ -17,8 +17,8 @@ export default function JsonLd({ post }: JsonLdProps) {
     datePublished: post.published_at || post.created_at,
     dateModified: post.updated_at,
     author: {
-      "@type": "Person",
-      name: SITE_NAME,
+      "@type": "Organization",
+      name: "단단한50 편집팀",
       url: siteUrl,
     },
     publisher: {

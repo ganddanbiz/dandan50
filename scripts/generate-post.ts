@@ -2,10 +2,10 @@
  * 단단한 50 — AI 블로그 자동 글 생성 스크립트
  * 사용법: npm run generate
  *
- * 발행 규칙:
- *   - 월·수·금·일 → money (재테크)
- *   - 화·목·토   → health (건강)
- *   - 재테크:건강 = 6:4 비율 유지
+ * 발행 규칙 (2026-10-14 건강 전용 전환 — 디자인 기획서):
+ *   - 월·수·토 발행, 전부 건강 주제
+ *   - 사이트 카테고리(topic.sub): diet·bloodsugar·meal·exercise·info·review 를 직전 2편과 겹치지 않게 순환
+ *   - 재테크(money)·일상(life) 주제는 발행하지 않는다 (기존 글은 주소 유지)
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -149,22 +149,24 @@ async function fetchUnsplashImages(category: string, count: number, usedIds: Set
 
 // ── 이미지 + 쿠팡 배너 + 면책문구 삽입 ───────────
 function injectContent(html: string, images: UnsplashResult[], category: string): string {
+  // parts[i]는 i번째 </h2> 바로 뒤에서 시작한다. 반드시 앞에 붙일 것 —
+  // 뒤에 붙이면 다음 <h2> 제목 안으로 들어가 소제목 속에 이미지·배너가 박힌다 (2026-10-14 수정)
   const DELIMITER = "</h2>";
   const parts = html.split(DELIMITER);
 
   // h2[1] 뒤 → 인라인 이미지 1
   if (parts.length > 1 && images[0]) {
-    parts[1] = parts[1] + buildImgFigure(images[0]);
+    parts[1] = buildImgFigure(images[0]) + parts[1];
   }
 
   // h2[2] 뒤 → 쿠팡 파트너스 배너
   if (parts.length > 2) {
-    parts[2] = parts[2] + COUPANG_BANNER;
+    parts[2] = COUPANG_BANNER + parts[2];
   }
 
   // h2[3] 뒤 → 인라인 이미지 2
   if (parts.length > 3 && images[1]) {
-    parts[3] = parts[3] + buildImgFigure(images[1]);
+    parts[3] = buildImgFigure(images[1]) + parts[3];
   }
 
   // 면책문구 → 마지막 파트에 추가
@@ -187,18 +189,6 @@ function buildImgFigure(img: UnsplashResult): string {
   ].join("");
 }
 
-// ── 오늘 발행할 카테고리 결정 (KST 요일 기준) ────
-function getTodayCategory(): "money" | "health" {
-  const now = new Date();
-  const kstDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  const dayOfWeek = kstDate.getUTCDay(); // 0=일 1=월 2=화 3=수 4=목 5=금 6=토
-
-  // 월(1)·수(3)·금(5)·일(0) → money / 화(2)·목(4)·토(6) → health
-  return (dayOfWeek === 0 || dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5)
-    ? "money"
-    : "health";
-}
-
 // ── 최근 발행 제목 조회 (중복 방지용) ───────────
 async function getRecentTitles(count: number = 7): Promise<string[]> {
   const rows = await sql`SELECT title FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT ${count}`;
@@ -206,30 +196,19 @@ async function getRecentTitles(count: number = 7): Promise<string[]> {
 }
 
 // ── 다음 발행할 주제 결정 ─────────────────────────
+// 2026-10-14 건강 전용 전환(디자인 기획서): 재테크(money)·일상(life) 주제는 더 이상 발행하지 않는다.
+// 건강 주제 중, 직전 2편과 다른 사이트 카테고리(sub)를 우선 골라 다이어트·혈당·식단·운동·정보·리뷰를 고르게 돌린다.
 async function getNextTopic(): Promise<Topic | null> {
-  const rows = await sql`SELECT slug FROM posts WHERE slug ~ '^(money|health|life)-[0-9]+$'`;
+  const rows = await sql`SELECT slug FROM posts WHERE slug ~ '^(money|health|life|hx)-[0-9]+$'`;
   const existingSlugs = new Set(rows.map((r) => r.slug as string));
+  const unused = allTopics.filter((t) => t.category === "health" && t.sub && !existingSlugs.has(t.slug));
+  if (unused.length === 0) return null;
 
-  const targetCategory = getTodayCategory();
-  const categoryLabel = targetCategory === "money" ? "재테크" : "건강";
-  writeLog(`📅 오늘 카테고리: ${categoryLabel} (${["일","월","화","수","목","금","토"][new Date(Date.now() + 9*3600000).getUTCDay()]}요일)`);
-
-  // 오늘 카테고리에서 순서대로 탐색
-  for (const topic of allTopics) {
-    if (topic.category === targetCategory && !existingSlugs.has(topic.slug)) {
-      return topic;
-    }
-  }
-
-  // 오늘 카테고리 소진 → 나머지 카테고리(life 포함)에서 탐색
-  writeLog(`⚠️  ${categoryLabel} 카테고리 소진 — 남은 주제에서 발행`);
-  for (const topic of allTopics) {
-    if (!existingSlugs.has(topic.slug)) {
-      return topic;
-    }
-  }
-
-  return null;
+  const recent = await sql`SELECT category FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 2`;
+  const recentCats = new Set(recent.map((r) => r.category as string));
+  const pick = unused.find((t) => !recentCats.has(t.sub!)) ?? unused[0];
+  writeLog(`📅 건강 카테고리: ${pick.sub} (남은 건강 주제 ${unused.length}개)`);
+  return pick;
 }
 
 // ── 프롬프트 생성 ──────────────────────────────────
@@ -295,7 +274,10 @@ function buildPrompt(topic: Topic, recentTitles: string[] = []): string {
    식품·식단·영양제에 치료·예방·완치·처방·특효 효능을 붙이지 않는다 (운동·생활습관·검진의 일반적 예방 정보는 가능)
    금지 표현: "이것만 바꿔도 몸이 달라진다", "확실히 좋아진다", "~만 먹으면"
    허용 표현: "도움이 될 수 있다", "연구에서 ~로 보고됐다", "개인차가 있다"
-12. 핵심 정리 바로 위에 "개인 건강 상태에 따라 다를 수 있으니 전문가와 상담하세요" 한 문장을 넣는다
+12. 핵심 정리 바로 위에 "개인 건강 상태에 따라 다를 수 있으니 전문가와 상담하세요" 한 문장을 넣는다${topic.sub === "review" ? `
+13. 제품 선택 가이드 글이다 — 직접 써본 사용 후기처럼 쓰지 않는다 ("써봤더니", "제가 사용해 보니" 금지).
+    고르는 기준 3~5가지 → 비교표(유형·가격대·장단점) → 이런 분께 맞아요 → 구매 전 체크사항 순서로 쓴다.
+    특정 브랜드·모델을 단정 추천하지 않고, 건강 효능을 과장하지 않는다.` : ""}
 
 [출력 형식]
 - 순수 HTML만 출력 (마크다운 기호 절대 사용 금지)
@@ -347,7 +329,7 @@ async function savePost(topic: Topic, content: string, thumbnailUrl: string | nu
   const [result] = await sql`
     INSERT INTO posts
       (title, content, slug, category, thumbnail_url, meta_description, keywords, status, published_at)
-    VALUES (${topic.title}, ${content}, ${topic.slug}, ${topic.category}, ${thumbnailUrl}, ${topic.meta_description}, ${topic.keywords}, 'published', ${publishedAt})
+    VALUES (${topic.title}, ${content}, ${topic.slug}, ${topic.sub ?? topic.category}, ${thumbnailUrl}, ${topic.meta_description}, ${topic.keywords}, 'published', ${publishedAt})
     RETURNING id
   `;
   return result.id as number;
@@ -374,7 +356,7 @@ async function main() {
       return;
     }
 
-    writeLog(`📝 주제 선택: [${topic.level}] ${topic.index}/130 - ${topic.title}`);
+    writeLog(`📝 주제 선택: [${topic.level}] ${topic.index}/${allTopics.length} - ${topic.title}`);
 
     writeLog("🤖 Claude로 글 생성 중...");
     const recentTitles = await getRecentTitles(7);

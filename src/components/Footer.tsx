@@ -1,68 +1,37 @@
 import Link from "next/link";
+import { CATEGORIES } from "@/lib/categories";
 
+// 기획서 §3.6 — 운영자 소개 / 문의 / 개인정보처리방침 / 광고·제휴 고지
 export default function Footer() {
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "단단한 50";
   const year = new Date().getFullYear();
-
   return (
-    <footer style={{
-      background: "var(--header-bg)",
-      borderTop: "1px solid rgba(255,255,255,0.06)",
-      marginTop: "auto",
-    }}>
-      <div style={{
-        maxWidth: "56rem",
-        margin: "0 auto",
-        padding: "2rem 1.5rem",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "1.25rem",
-      }}>
-
-        {/* 좌측: 사이트명 + 저작권 */}
-        <div>
-          <p style={{
-            fontFamily: "var(--font-serif)",
-            fontWeight: 700,
-            fontSize: "0.9375rem",
-            color: "var(--header-text)",
-            marginBottom: "0.3rem",
-          }}>
-            {siteName}
-          </p>
-          <p style={{ fontSize: "0.75rem", color: "var(--header-muted)" }}>
-            © {year} {siteName}. All rights reserved.
-          </p>
+    <footer className="site-footer">
+      <div className="wrap">
+        <div className="cols">
+          <div>
+            <h4>단단한50</h4>
+            <p className="note">
+              50부터 더 건강하게, 더 단단하게.<br />
+              무리한 다이어트보다 지속 가능한 습관을 전하는 중년 건강 매거진입니다.<br />
+              이 블로그의 건강 정보는 일반적인 정보이며 개인별 의료 조언을 대신하지 않습니다.
+            </p>
+          </div>
+          <div>
+            <h4>카테고리</h4>
+            {CATEGORIES.map((c) => <Link key={c.key} href={`/category/${c.key}`}>{c.label}</Link>)}
+          </div>
+          <div>
+            <h4>안내</h4>
+            <Link href="/about">운영자 소개</Link>
+            <Link href="/contact">문의하기</Link>
+            <Link href="/privacy">개인정보처리방침</Link>
+            <Link href="/disclosure">광고·제휴 고지</Link>
+          </div>
         </div>
-
-        {/* 우측: 링크 */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "0.25rem", flexWrap: "wrap" }}>
-          {[
-            { href: "/about", label: "블로그 소개" },
-            { href: "/contact", label: "문의하기" },
-            { href: "/privacy", label: "개인정보처리방침" },
-          ].map(({ href, label }, i) => (
-            <span key={href} style={{ display: "inline-flex", alignItems: "center" }}>
-              {i > 0 && (
-                <span style={{ color: "var(--header-muted)", padding: "0 0.4rem", fontSize: "0.75rem" }}>·</span>
-              )}
-              <Link
-                href={href}
-                style={{
-                  fontSize: "0.8125rem",
-                  color: "var(--header-muted)",
-                  textDecoration: "none",
-                  transition: "color 0.15s",
-                }}
-              >
-                {label}
-              </Link>
-            </span>
-          ))}
-        </nav>
-
+        <div className="copy">
+          <span>© {year} 단단한50. All rights reserved.</span>
+          <span>일부 글에는 쿠팡 파트너스 등 제휴 링크가 포함되며, 구매 시 일정액의 수수료를 받을 수 있습니다. · 사진: Unsplash</span>
+        </div>
       </div>
     </footer>
   );

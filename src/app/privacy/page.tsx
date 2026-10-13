@@ -13,26 +13,6 @@ export default function PrivacyPage() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
 
-      {/* 헤더 */}
-      <header style={{ background: "var(--header-bg)" }}>
-        <div style={{ maxWidth: "52rem", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
-          <Link
-            href="/"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.875rem",
-              color: "var(--header-muted)",
-              textDecoration: "none",
-              transition: "color 0.15s",
-            }}
-          >
-            ← {siteName}
-          </Link>
-        </div>
-      </header>
-
       {/* 본문 */}
       <main style={{ maxWidth: "52rem", margin: "0 auto", padding: "3rem 1.5rem 5rem" }}>
         <h1 style={{
@@ -67,6 +47,9 @@ export default function PrivacyPage() {
               <strong>좋아요 기능 이용 시:</strong> IP 주소(단방향 해시 처리 후 저장 — 중복 방지 목적)
             </li>
             <li>
+              <strong>건강 레터 구독 시:</strong> 이메일 주소, 구독 동의 일시 (이용자가 동의한 경우에만)
+            </li>
+            <li>
               <strong>방문 로그:</strong> 접속 IP, 브라우저 정보, 방문 페이지 URL (서버 운영 및 보안 목적)
             </li>
           </ul>
@@ -78,6 +61,7 @@ export default function PrivacyPage() {
           <h2>2. 개인정보의 수집 목적 및 이용</h2>
           <ul>
             <li>댓글·좋아요 등 서비스 제공 및 운영</li>
+            <li>건강 레터(이메일 뉴스레터) 발송</li>
             <li>불법 이용 행위 방지 및 스팸 댓글 차단</li>
             <li>서비스 개선 및 통계 분석 (비식별 처리 후 활용)</li>
           </ul>
@@ -90,6 +74,7 @@ export default function PrivacyPage() {
           <ul>
             <li>댓글: 삭제 요청 시 즉시 파기</li>
             <li>IP 해시: 수집일로부터 1년 후 자동 파기</li>
+            <li>구독 이메일: 구독 해지 시 즉시 파기 (해지는 문의하기 또는 메일 하단 해지 링크로 요청)</li>
             <li>서버 접속 로그: 3개월 (전기통신사업법)</li>
           </ul>
 

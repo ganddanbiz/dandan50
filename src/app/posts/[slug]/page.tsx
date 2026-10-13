@@ -9,6 +9,9 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 import CoupangAd from "@/components/CoupangAd";
+import { CATEGORY_MAP, HEALTH_KEYS, categoryLabel } from "@/lib/categories";
+import { prepareArticle } from "@/lib/content";
+import { PostCardItem, CardPost } from "@/components/PostGrid";
 
 export const revalidate = 3600;
 
@@ -56,181 +59,116 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const catLabels: Record<string, string> = {
-  before:  "투자준비",
-  bidding: "투자실전",
-  after:   "자산관리",
-  tax:     "세금·절세",
-  law:     "법률·규정",
-  ai:      "AI활용",
-};
-const catBadgeClass: Record<string, string> = {
-  before: "badge badge-before",
-  bidding: "badge badge-bidding",
-  after:   "badge badge-after",
-  tax:     "badge badge-tax",
-  law:     "badge badge-law",
-  ai:      "badge badge-ai",
-};
+async function getRelated(post: Post): Promise<CardPost[]> {
+  const same = await sql`SELECT id, slug, title, category, thumbnail_url, meta_description, published_at FROM posts
+    WHERE status = 'published' AND category = ${post.category} AND id <> ${post.id}
+    ORDER BY published_at DESC LIMIT 3`;
+  if (same.length >= 3) return same as CardPost[];
+  const keys = HEALTH_KEYS as string[];
+  const more = await sql`SELECT id, slug, title, category, thumbnail_url, meta_description, published_at FROM posts
+    WHERE status = 'published' AND category = ANY(${keys}) AND id <> ${post.id} AND category <> ${post.category}
+    ORDER BY view_count DESC LIMIT ${3 - same.length}`;
+  return [...same, ...more] as CardPost[];
+}
 
+const fmt = (d: string | null | undefined) =>
+  d ? new Date(d).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" }) : null;
+
+// 게시글 페이지 — 디자인 기획서 §4: 이동 경로 → 제목·메타 → 대표 이미지 → 요약 → 목차 → 본문(정보 박스) → 관련 글
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) notFound();
 
   await sql`UPDATE posts SET view_count = view_count + 1 WHERE id = ${post.id}`;
-  const likeCount = await getLikeCount(post.id);
+  const [likeCount, related] = await Promise.all([getLikeCount(post.id), getRelated(post)]);
 
-  const publishedDate = post.published_at
-    ? new Date(post.published_at).toLocaleDateString("ko-KR", {
-        year: "numeric", month: "long", day: "numeric",
-      })
-    : null;
-
+  const { html, toc, minutes } = prepareArticle(post.content);
+  const cat = CATEGORY_MAP[post.category];
+  const published = fmt(post.published_at);
+  const updated = fmt(post.updated_at);
+  const showUpdated = updated && post.published_at &&
+    new Date(post.updated_at).getTime() - new Date(post.published_at).getTime() > 864e5;
 
   return (
     <>
       <JsonLd post={post} />
-      <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
-
-        {/* ── 상단 내비 ─────────────────────────── */}
-        <header style={{
-          background: "var(--header-bg)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", inset: 0, pointerEvents: "none",
-            background: "radial-gradient(ellipse 60% 100% at 80% 50%, rgba(37,99,235,0.1) 0%, transparent 70%)",
-          }} />
-          <div style={{
-            maxWidth: "52rem", margin: "0 auto",
-            padding: "0.875rem 1.5rem",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}>
-            <Link href="/" style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "1rem",
-              fontWeight: 700,
-              color: "var(--header-text)",
-              textDecoration: "none",
-              letterSpacing: "-0.01em",
-            }}>
-              재테크스토리
-            </Link>
-            <Link href="/" style={{
-              fontSize: "0.75rem",
-              color: "var(--header-muted)",
-              textDecoration: "none",
-              display: "flex", alignItems: "center", gap: "0.3rem",
-            }}>
-              ← 목록으로
-            </Link>
+      <div className="read-wrap">
+        <header className="article-head">
+          <nav className="crumb" aria-label="이동 경로">
+            <Link href="/">홈</Link> ›
+            {cat ? <Link href={`/category/${cat.key}`}>{cat.label}</Link> : <span>{categoryLabel(post.category)}</span>}
+          </nav>
+          <h1>{post.title}</h1>
+          <div className="article-meta">
+            <span className="author">
+              <i aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Z" fill="#A8BE9B" /></svg></i>
+              단단한50 편집팀
+            </span>
+            {published && <span>게시 {published}</span>}
+            {showUpdated && <span>수정 {updated}</span>}
+            <span className={post.category === "review" ? "chip chip-peach" : "chip"}>{categoryLabel(post.category)}</span>
+            <span>읽는 시간 약 {minutes}분</span>
           </div>
         </header>
 
-        <main style={{ maxWidth: "52rem", margin: "0 auto", padding: "0 1.5rem" }}>
+        {post.thumbnail_url && (
+          <div className="article-cover">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={post.thumbnail_url} alt={post.title} />
+          </div>
+        )}
 
-          {/* ── 아티클 ─────────────────────────── */}
-          <article style={{
-            background: "var(--bg-card)",
-            borderRadius: "0 0 16px 16px",
-            border: "1px solid var(--border)",
-            borderTop: "none",
-            padding: "2.5rem 2.5rem 3rem",
-            marginBottom: "2rem",
-            boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-          }}>
+        {post.meta_description && (
+          <div className="summary-box">
+            <strong>이 글의 핵심</strong>
+            {post.meta_description}
+          </div>
+        )}
 
-            {/* 메타 */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: "0.4rem",
-              marginBottom: "1.25rem", flexWrap: "wrap",
-            }}>
-              <span className={catBadgeClass[post.category] || "badge"}>
-                {catLabels[post.category] || post.category}
-              </span>
-              {publishedDate && (
-                <span style={{ fontSize: "0.75rem", color: "var(--ink-faint)", marginLeft: "0.25rem" }}>
-                  {publishedDate}
-                </span>
-              )}
-              <span style={{ fontSize: "0.75rem", color: "var(--ink-faint)" }}>
-                · 조회 {post.view_count.toLocaleString()}
-              </span>
+        {post.category === "review" && (
+          <p className="ad-note" style={{ marginBottom: "1.25rem" }}>
+            이 글에는 제휴 링크가 포함되어 있으며, 구매 시 일정액의 수수료를 받을 수 있습니다.
+          </p>
+        )}
+
+        {toc.length >= 3 && (
+          <nav className="toc" aria-label="목차">
+            <div className="toc-title">목차</div>
+            <ol>{toc.map((t) => <li key={t.id}><a href={`#${t.id}`}>{t.text}</a></li>)}</ol>
+          </nav>
+        )}
+
+        <article className="article-body">
+          <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+          {post.category !== "money" && (
+            <div className="caution-box">
+              <strong>실천 전 확인하세요.</strong> 이 글은 일반적인 건강 정보이며 개인별 진단이나 치료를 대신하지 않습니다.
+              지병이 있거나 약을 복용 중이라면 식단·운동을 바꾸기 전에 의사나 전문가와 상담하세요.
             </div>
+          )}
+          <div style={{ marginTop: "2rem", paddingTop: "1.25rem", borderTop: "1px solid var(--border)", display: "flex", gap: "0.75rem", alignItems: "center" }}>
+            <LikeButton postId={post.id} initialCount={likeCount} />
+            <ShareButton title={post.title} />
+          </div>
+        </article>
 
-            {/* 제목 */}
-            <h1 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(1.5rem, 3.5vw, 2rem)",
-              fontWeight: 800,
-              lineHeight: 1.35,
-              letterSpacing: "-0.01em",
-              color: "var(--ink)",
-              marginBottom: "2rem",
-            }}>
-              {post.title}
-            </h1>
+        <div className="ad-slot">
+          <span className="ad-label">광고 · 쿠팡 파트너스</span>
+          <CoupangAd />
+        </div>
 
-            {/* 구분선 */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: "0.75rem",
-              marginBottom: "2rem",
-            }}>
-              <div style={{ width: "2.5rem", height: "3px", background: "var(--accent)", borderRadius: "2px" }} />
-              <span style={{ fontSize: "0.75rem", color: "var(--ink-faint)", fontWeight: 600, letterSpacing: "0.05em" }}>
-                {process.env.NEXT_PUBLIC_SITE_NAME || "운영자"}
-              </span>
+        {related.length > 0 && (
+          <section className="related">
+            <h2>함께 읽으면 좋은 글</h2>
+            <div className="card-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))" }}>
+              {related.map((r) => <PostCardItem key={r.id} post={r} />)}
             </div>
+          </section>
+        )}
 
-            {/* 썸네일 */}
-            {post.thumbnail_url && (
-              <div style={{
-                marginBottom: "2.5rem", borderRadius: "10px", overflow: "hidden",
-                border: "1px solid var(--border)",
-              }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={post.thumbnail_url}
-                  alt={post.title}
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
-            )}
-
-            {/* 쿠팡 다이내믹 광고 */}
-            <CoupangAd />
-
-            {/* 본문 */}
-            <div
-              className="prose"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-
-            {/* 좋아요 & 공유 */}
-            <div style={{
-              marginTop: "2.5rem",
-              paddingTop: "1.5rem",
-              borderTop: "1px solid var(--border)",
-              display: "flex", alignItems: "center", gap: "0.75rem",
-            }}>
-              <LikeButton postId={post.id} initialCount={likeCount} />
-              <ShareButton title={post.title} />
-            </div>
-          </article>
-
-          {/* ── 쿠팡 리더보드 광고 ─────────────── */}
-          <CoupangAd variant="leaderboard" />
-
-          {/* ── 쿠팡 스퀘어 광고 ───────────────── */}
-          <CoupangAd variant="square" />
-
-          {/* ── 댓글 ────────────────────────────── */}
-          <CommentSection postId={post.id} />
-          <div style={{ height: "3rem" }} />
-        </main>
+        <CommentSection postId={post.id} />
+        <div style={{ height: "3rem" }} />
       </div>
     </>
   );

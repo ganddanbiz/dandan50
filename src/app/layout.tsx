@@ -1,22 +1,10 @@
 import { SITE_URL, SITE_NAME } from "@/lib/seo";
 import type { Metadata } from "next";
-import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
 import WingBanner from "@/components/WingBanner";
-
-const notoSansKR = Noto_Sans_KR({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-noto-sans-kr",
-});
-
-const notoSerifKR = Noto_Serif_KR({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-noto-serif-kr",
-});
 
 const siteName = SITE_NAME;
 const siteUrl = SITE_URL;
@@ -28,9 +16,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     template: `%s | ${siteName}`,
-    default: siteName,
+    default: `${siteName} — 50부터 더 건강하게, 더 단단하게`,
   },
-  description: `50대 직장인 선배가 알려주는 재테크·건강 블로그 — ${siteName}`,
+  description: "다이어트·혈당관리·건강식단·운동까지, 50대부터 지속 가능한 건강 습관을 전하는 중년 건강 매거진 단단한50",
   openGraph: {
     type: "website",
     siteName,
@@ -63,9 +51,18 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang="ko" className={`${notoSansKR.variable} ${notoSerifKR.variable} h-full`}>
+    <html lang="ko" className="h-full">
+      <head>
+        {/* Pretendard — 디자인 기획서 §2 폰트 */}
+        <link
+          rel="stylesheet"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+      </head>
       <body className="min-h-full flex flex-col antialiased">
-        {children}
+        <SiteHeader />
+        <div style={{ flex: 1 }}>{children}</div>
         <Footer />
         <WingBanner />
         {adsenseClient && (

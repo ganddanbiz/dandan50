@@ -596,7 +596,7 @@ export const allTopics: Topic[] = [
   },
   {
     index: 95, slug: "health-017", level: "건강", category: "health",
-    title: "50대 당뇨 예방 식단, 혈당 스파이크 막는 법",
+    title: "50대 혈당 관리 식단, 혈당 스파이크 줄이는 법",
     keywords: "당뇨예방식단,혈당스파이크,혈당관리,당뇨식이요법",
     meta_description: "혈당 스파이크가 반복되면 당뇨로 이어집니다. 혈당을 안정적으로 유지하는 식사 순서와 식품 선택법을 알려드립니다.",
   },
@@ -782,7 +782,7 @@ export const allTopics: Topic[] = [
   },
   {
     index: 125, slug: "health-047", level: "건강", category: "health",
-    title: "뼈 건강 지키기, 50대 골다공증 예방 식단과 운동",
+    title: "뼈 건강 지키기, 50대 골다공증 대비 식단과 운동",
     keywords: "골다공증예방,뼈건강,칼슘섭취,50대골밀도",
     meta_description: "50대부터 골밀도가 급격히 낮아집니다. 골다공증을 예방하는 식단과 운동을 지금부터 시작하세요.",
   },

@@ -32,6 +32,8 @@
 - **듀얼 카테고리**: money(재테크) + health(건강) + life(일상) — 다른 블로그와 다름
 - **요일별 카테고리**: 월·수·금·일 → money / 화·목·토 → health
 - **쿠팡 파트너스**: H2 2번째 뒤에 캐러셀 배너 자동 삽입 (id=970543, AF9787280)
+  - 2026-10-14: 캐러셀은 `public/coupang-carousel.html?id=&h=` iframe으로만 그린다. 스크립트(g.js)를 동적으로 넣거나 본문 HTML에 넣으면 광고가 푸터 아래 왼쪽에 붙거나 빈칸이 된다. 예전 글의 본문 스크립트는 `src/lib/content.ts`가 렌더할 때 iframe으로 바꾼다. 같은 사이트 iframe이 필요해서 `next.config.ts`의 `X-Frame-Options`는 `SAMEORIGIN`이다 (DENY 금지)
+  - 날개 배너(`.wing-banner`): 본문 틀 오른쪽, 헤더 아래(`top: 7rem`), 1520px 이상에서만 보임
 - **면책문구**: 재테크 글 → 투자 면책 / 건강 글 → 의료 면책 자동 삽입
 
 ## 프로젝트 구조

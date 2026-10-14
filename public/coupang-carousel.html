@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style>
+</head><body>
+<!-- 쿠팡 파트너스 캐러셀 — iframe 전용 페이지.
+     g.js는 document.currentScript 위치에 광고를 그린다. React에서 스크립트를 동적으로 끼우면
+     currentScript가 없어 광고가 페이지 맨 끝(푸터 아래)에 붙는다 → 이 페이지를 iframe으로 쓴다.
+     사용: /coupang-carousel.html?id=970645&h=140 -->
+<script src="https://ads-partners.coupang.com/g.js"></script>
+<script>
+  var q = new URLSearchParams(location.search);
+  new PartnersCoupang.G({ id: Number(q.get("id")) || 970645, template: "carousel", trackingCode: "AF9787280",
+    subId: null, width: "100%", height: q.get("h") || "140", tsource: "" });
+</script>
+</body></html>

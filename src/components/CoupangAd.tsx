@@ -1,59 +1,11 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    PartnersCoupang: any;
-  }
-}
-
 interface Props {
   variant?: "banner" | "square" | "leaderboard";
 }
 
+// 쿠팡 캐러셀은 iframe(/coupang-carousel.html)으로 그린다.
+// 예전엔 스크립트를 동적으로 끼웠는데, g.js가 document.currentScript를 못 찾아
+// 광고가 이 자리가 아니라 페이지 맨 끝(푸터 아래 왼쪽)에 붙었다 (2026-10-14 수정).
 export default function CoupangAd({ variant = "banner" }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const done = useRef(false);
-
-  useEffect(() => {
-    if (variant === "leaderboard" || done.current || !ref.current) return;
-    done.current = true;
-
-    const id = variant === "square" ? 970543 : 970645;
-    const width = variant === "square" ? "300" : "680";
-    const height = variant === "square" ? "300" : "140";
-
-    const initAd = () => {
-      if (!ref.current) return;
-      const s = document.createElement("script");
-      s.text = `
-        try {
-          new PartnersCoupang.G({
-            id: ${id},
-            template: "carousel",
-            trackingCode: "AF9787280",
-            width: "${width}",
-            height: "${height}",
-            tsource: ""
-          });
-        } catch(e) {}
-      `;
-      ref.current.appendChild(s);
-    };
-
-    if (window.PartnersCoupang) {
-      initAd();
-    } else {
-      const gScript = document.createElement("script");
-      gScript.src = "https://ads-partners.coupang.com/g.js";
-      gScript.async = true;
-      gScript.onload = initAd;
-      document.head.appendChild(gScript);
-    }
-  }, [variant]);
-
   if (variant === "leaderboard") {
     return (
       <div style={{ margin: "1.75rem 0", overflow: "hidden" }}>
@@ -85,21 +37,21 @@ export default function CoupangAd({ variant = "banner" }: Props) {
   }
 
   const isSquare = variant === "square";
+  const id = isSquare ? 970543 : 970645;
+  const h = isSquare ? 300 : 140;
 
   return (
-    <div style={{ margin: "1.75rem 0", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: isSquare ? "center" : "stretch" }}>
-      <p style={{
-        fontSize: "0.6875rem",
-        color: "var(--ink-faint)",
-        textAlign: "right",
-        marginBottom: "4px",
-        lineHeight: 1.4,
-        width: isSquare ? "300px" : "100%",
-        maxWidth: "100%",
-      }}>
+    <div style={{ margin: "1.75rem auto", width: "100%", maxWidth: isSquare ? "300px" : "680px", textAlign: "center" }}>
+      <p style={{ fontSize: "0.6875rem", color: "var(--ink-faint)", textAlign: "right", marginBottom: "4px", lineHeight: 1.4 }}>
         이 포스팅은 쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다.
       </p>
-      <div ref={ref} style={{ width: isSquare ? "300px" : "100%", maxWidth: "100%", overflowX: "hidden", minHeight: isSquare ? "300px" : "100px" }} />
+      <iframe
+        src={`/coupang-carousel.html?id=${id}&h=${h}`}
+        title="쿠팡 파트너스 상품"
+        loading="lazy"
+        scrolling="no"
+        style={{ display: "block", width: "100%", height: `${h + 10}px`, border: 0, margin: "0 auto" }}
+      />
     </div>
   );
 }

@@ -58,10 +58,7 @@ const FALLBACK_QUERIES = ["healthy lifestyle", "wellness nature walk", "fresh ve
 const COUPANG_BANNER = `
 <div style="margin:2.5em 0;padding:1.25em 1em;background:linear-gradient(135deg,#fff8f0 0%,#fff3e6 100%);border-radius:8px;border:1px solid #f5c97a;">
   <p style="font-size:0.78rem;color:#b45309;margin:0 0 0.75em 0;font-weight:600;">이 글과 함께 도움이 될 상품</p>
-  <script src="https://ads-partners.coupang.com/g.js"></script>
-  <script>
-    new PartnersCoupang.G({id: 970543, trackingCode: "AF9787280", subId: null, template: "carousel", width: "100%", height: "140"});
-  </script>
+  <iframe src="/coupang-carousel.html?id=970543&h=140" title="쿠팡 파트너스 상품" loading="lazy" scrolling="no" style="display:block;width:100%;height:150px;border:0;margin:0 auto"></iframe>
   <p style="font-size:0.68rem;color:#999;text-align:right;margin:0.5em 0 0 0;">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
 </div>`;
 

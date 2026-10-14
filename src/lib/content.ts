@@ -20,6 +20,13 @@ export function prepareArticle(html: string): { html: string; toc: TocItem[]; mi
     return `<h2${attrs}>${inner.slice(0, cut).trim()}</h2>${inner.slice(cut)}`;
   });
 
+  // ⓪-2 본문 속 쿠팡 스크립트 쌍은 dangerouslySetInnerHTML이라 실행되지 않아 빈칸으로 남는다 → iframe
+  out = out.replace(
+    /<script\s+src="https:\/\/ads-partners\.coupang\.com\/g\.js"><\/script>\s*<script>\s*new PartnersCoupang\.G\(\{\s*id:\s*(\d+)[\s\S]*?<\/script>/g,
+    (_m, id) =>
+      `<iframe src="/coupang-carousel.html?id=${id}&h=140" title="쿠팡 파트너스 상품" loading="lazy" scrolling="no" style="display:block;width:100%;height:150px;border:0;margin:0 auto"></iframe>`
+  );
+
   // ① 생성기가 넣는 "💡 핵심 정리" h2 + 바로 뒤 ul → 정보 박스
   out = out.replace(
     /<h2[^>]*>\s*(?:💡\s*)?핵심\s*정리\s*<\/h2>\s*(<ul[\s\S]*?<\/ul>)/,

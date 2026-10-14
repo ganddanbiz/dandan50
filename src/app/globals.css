@@ -384,11 +384,12 @@ body {
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ── Wing Banner ────────────────────────────────── */
+/* 날개 배너 — 본문 틀(--wrap) 바로 오른쪽, 헤더 아래에 고정. 화면 세로 가운데에 두면
+   스크롤 끝에서 푸터 옆에 떠 있어 어색했다(2026-10-14). 본문과 겹치지 않는 넓은 화면에서만 보인다. */
 .wing-banner {
   position: fixed;
-  right: 1.25rem;
-  top: 50%;
-  transform: translateY(-50%);
+  left: calc(50% + var(--wrap) / 2 + 1.25rem);
+  top: 7rem;
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
@@ -396,7 +397,7 @@ body {
   width: 9.5rem;
 }
 
-@media (max-width: 1399px) {
+@media (max-width: 1519px) {
   .wing-banner { display: none; }
 }
 

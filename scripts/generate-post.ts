@@ -42,6 +42,18 @@ const CATEGORY_QUERY: Record<string, string> = {
   life:   "Korean lifestyle daily routine office worker people",
 };
 
+// 건강 세부 카테고리별 검색어 (2026-10-14) — 'health' 한 검색어(최대 30장)는 이미 다 써서
+// "미사용 이미지 없음"으로 발행이 멈췄다. 세부 검색어 → 일반 검색어 순으로 넓혀 찾는다.
+const SUB_QUERIES: Record<string, string[]> = {
+  diet:       ["healthy weight loss meal", "middle aged woman walking park", "diet salad vegetables"],
+  bloodsugar: ["blood sugar healthy meal", "whole grains vegetables table", "walking after meal"],
+  meal:       ["korean healthy food table", "balanced meal tofu vegetables", "home cooked healthy dinner"],
+  exercise:   ["senior stretching exercise", "middle aged man jogging", "home workout mat"],
+  info:       ["healthy lifestyle morning", "doctor consultation senior", "sleep rest bedroom morning"],
+  review:     ["vitamin supplements bottle", "healthy kitchen products", "fitness equipment home"],
+};
+const FALLBACK_QUERIES = ["healthy lifestyle", "wellness nature walk", "fresh vegetables kitchen", "active senior couple"];
+
 // ── 쿠팡 파트너스 배너 HTML ────────────────────────
 const COUPANG_BANNER = `
 <div style="margin:2.5em 0;padding:1.25em 1em;background:linear-gradient(135deg,#fff8f0 0%,#fff3e6 100%);border-radius:8px;border:1px solid #f5c97a;">
@@ -85,59 +97,62 @@ async function getUsedImageIds(): Promise<Set<string>> {
 }
 
 // ── Unsplash 이미지 여러 장 가져오기 ──────────────
-async function fetchUnsplashImages(category: string, count: number, usedIds: Set<string> = new Set()): Promise<UnsplashResult[]> {
+async function fetchUnsplashImages(category: string, count: number, usedIds: Set<string> = new Set(), sub?: string): Promise<UnsplashResult[]> {
   const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!unsplashKey) {
     writeLog("⚠️  UNSPLASH_ACCESS_KEY 미설정 — 이미지 없이 진행");
     return [];
   }
 
-  const query = CATEGORY_QUERY[category] ?? "lifestyle people";
+  const queries = [...(sub ? SUB_QUERIES[sub] ?? [] : []), CATEGORY_QUERY[category] ?? "lifestyle people", ...FALLBACK_QUERIES];
 
   try {
     const results: UnsplashResult[] = [];
-    let page = 1;
+    for (const query of queries) {
+      if (results.length >= count) break;
+      let page = 1;
 
-    while (results.length < count && page <= 3) {
-      const url = new URL("https://api.unsplash.com/search/photos");
-      url.searchParams.set("query", query);
-      url.searchParams.set("per_page", "10");
-      url.searchParams.set("orientation", "landscape");
-      url.searchParams.set("page", String(page));
+      while (results.length < count && page <= 3) {
+        const url = new URL("https://api.unsplash.com/search/photos");
+        url.searchParams.set("query", query);
+        url.searchParams.set("per_page", "10");
+        url.searchParams.set("orientation", "landscape");
+        url.searchParams.set("page", String(page));
 
-      const res = await fetch(url.toString(), {
-        headers: { Authorization: `Client-ID ${unsplashKey}` },
-      });
-
-      if (!res.ok) {
-        writeLog(`⚠️  Unsplash API 오류 (${res.status}) — 이미지 없이 진행`);
-        break;
-      }
-
-      const data = await res.json() as {
-        results: Array<{
-          id: string;
-          urls: { regular: string };
-          user: { name: string };
-          links: { html: string };
-        }>;
-      };
-
-      if (!data.results?.length) break;
-
-      for (const photo of data.results) {
-        const baseUrl = photo.urls.regular.split("?")[0];
-        if (usedIds.has(baseUrl)) continue;
-        usedIds.add(baseUrl);
-        results.push({
-          url: photo.urls.regular,
-          attribution: `<a href="${photo.links.html}?utm_source=dandan50&utm_medium=referral" rel="noopener noreferrer" style="color:rgba(255,255,255,0.9);">${photo.user.name}</a> / Unsplash`,
+        const res = await fetch(url.toString(), {
+          headers: { Authorization: `Client-ID ${unsplashKey}` },
         });
-        if (results.length >= count) break;
-      }
 
-      page++;
-    }
+        if (!res.ok) {
+          writeLog(`⚠️  Unsplash API 오류 (${res.status}) — 이미지 없이 진행`);
+          break;
+        }
+
+        const data = await res.json() as {
+          results: Array<{
+            id: string;
+            urls: { regular: string };
+            user: { name: string };
+            links: { html: string };
+          }>;
+        };
+
+        if (!data.results?.length) break;
+
+        for (const photo of data.results) {
+          const baseUrl = photo.urls.regular.split("?")[0];
+          if (usedIds.has(baseUrl)) continue;
+          usedIds.add(baseUrl);
+          results.push({
+            url: photo.urls.regular,
+            attribution: `<a href="${photo.links.html}?utm_source=dandan50&utm_medium=referral" rel="noopener noreferrer" style="color:rgba(255,255,255,0.9);">${photo.user.name}</a> / Unsplash`,
+          });
+          if (results.length >= count) break;
+        }
+
+        page++;
+      }
+      }
 
     if (!results.length) writeLog("⚠️  Unsplash 미사용 이미지 없음 — 이미지 없이 진행");
     return results;
@@ -322,6 +337,9 @@ function cleanHtml(raw: string): string {
     .trim();
 }
 
+// 검수관 게이트(2026-10-14): 워크플로가 POST_STATUS=draft로 저장하면 컨트롤타워 검수관이 검수 후 공개한다. 로컬 수동 실행은 바로 공개.
+const POST_STATUS = process.env.POST_STATUS === "draft" ? "draft" : "published";
+
 // ── DB에 글 저장 ───────────────────────────────────
 async function savePost(topic: Topic, content: string, thumbnailUrl: string | null): Promise<number> {
   const publishedAt = new Date().toISOString();
@@ -329,7 +347,7 @@ async function savePost(topic: Topic, content: string, thumbnailUrl: string | nu
   const [result] = await sql`
     INSERT INTO posts
       (title, content, slug, category, thumbnail_url, meta_description, keywords, status, published_at)
-    VALUES (${topic.title}, ${content}, ${topic.slug}, ${topic.sub ?? topic.category}, ${thumbnailUrl}, ${topic.meta_description}, ${topic.keywords}, 'published', ${publishedAt})
+    VALUES (${topic.title}, ${content}, ${topic.slug}, ${topic.sub ?? topic.category}, ${thumbnailUrl}, ${topic.meta_description}, ${topic.keywords}, ${POST_STATUS}, ${publishedAt})
     RETURNING id
   `;
   return result.id as number;
@@ -372,7 +390,7 @@ async function main() {
 
     writeLog("🖼️  Unsplash 이미지 가져오는 중...");
     const usedIds = await getUsedImageIds();
-    const allImages = await fetchUnsplashImages(topic.category, 3, usedIds);
+    const allImages = await fetchUnsplashImages(topic.category, 3, usedIds, topic.sub);
     const thumbnail = allImages[0] ?? null;
     const inlineImages = allImages.slice(1, 3);
 

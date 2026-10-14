@@ -171,6 +171,11 @@ function cleanHtml(raw: string): string {
 }
 
 export async function GET(request: Request) {
+  // 2026-10-14 중지: 발행은 GitHub Actions(daily-post.yml) → 컨트롤타워 검수관 경로로만 한다.
+  // 이 경로는 재테크스토리에서 복사된 옛 Gemini 생성기라 검수 없이 바로 공개하므로 막아 둔다.
+  if (process.env.ENABLE_LEGACY_CRON !== "1") {
+    return NextResponse.json({ error: "disabled — GitHub Actions + 검수관 경로 사용" }, { status: 410 });
+  }
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

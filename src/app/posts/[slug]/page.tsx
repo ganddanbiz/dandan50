@@ -9,6 +9,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 import CoupangAd from "@/components/CoupangAd";
+import CoupangAdFallback from "@/components/CoupangAdFallback";
 import { CATEGORY_MAP, HEALTH_KEYS, categoryLabel } from "@/lib/categories";
 import { prepareArticle } from "@/lib/content";
 import { PostCardItem, CardPost } from "@/components/PostGrid";
@@ -149,7 +150,7 @@ export default async function PostPage({ params }: Props) {
           )}
           <div style={{ marginTop: "2rem", paddingTop: "1.25rem", borderTop: "1px solid var(--border)", display: "flex", gap: "0.75rem", alignItems: "center" }}>
             <LikeButton postId={post.id} initialCount={likeCount} />
-            <ShareButton title={post.title} />
+            <ShareButton />
           </div>
         </article>
 
@@ -157,6 +158,7 @@ export default async function PostPage({ params }: Props) {
           <span className="ad-label">광고 · 쿠팡 파트너스</span>
           <CoupangAd />
         </div>
+        <CoupangAdFallback />
 
         {related.length > 0 && (
           <section className="related">

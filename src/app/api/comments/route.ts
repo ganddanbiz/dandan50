@@ -14,10 +14,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "postId is required" }, { status: 400 });
     }
 
+    // is_approved는 Postgres BOOLEAN — MySQL 시절의 `= 1`은 타입 오류로 댓글 조회·작성이 모두 500이었다 (2026-11-01)
     const comments = await sql`
       SELECT id, post_id, nickname, content, created_at
       FROM comments
-      WHERE post_id = ${postId} AND is_approved = 1
+      WHERE post_id = ${postId} AND is_approved = TRUE
       ORDER BY created_at ASC
     `;
 
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     const [result] = await sql`
       INSERT INTO comments (post_id, nickname, password, content, ip_hash, is_approved)
-      VALUES (${postId}, ${nickname}, ${passwordHash}, ${content}, ${ipHash}, 1)
+      VALUES (${postId}, ${nickname}, ${passwordHash}, ${content}, ${ipHash}, TRUE)
       RETURNING id
     `;
 

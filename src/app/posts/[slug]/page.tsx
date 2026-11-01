@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import sql from "@/lib/db";
 import { Post } from "@/types";
 import JsonLd from "@/components/JsonLd";
+import ViewCounter from "@/components/ViewCounter";
 import CommentSection from "@/components/CommentSection";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
@@ -81,7 +82,6 @@ export default async function PostPage({ params }: Props) {
   const post = await getPost(slug);
   if (!post) notFound();
 
-  await sql`UPDATE posts SET view_count = view_count + 1 WHERE id = ${post.id}`;
   const [likeCount, related] = await Promise.all([getLikeCount(post.id), getRelated(post)]);
 
   const { html, toc, minutes } = prepareArticle(post.content);
@@ -94,6 +94,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <JsonLd post={post} />
+      <ViewCounter postId={post.id} />
       <div className="read-wrap">
         <header className="article-head">
           <nav className="crumb" aria-label="이동 경로">

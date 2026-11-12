@@ -14,6 +14,7 @@ import CoupangAdFallback from "@/components/CoupangAdFallback";
 import { CATEGORY_MAP, HEALTH_KEYS, categoryLabel } from "@/lib/categories";
 import { prepareArticle } from "@/lib/content";
 import { PostCardItem, CardPost } from "@/components/PostGrid";
+import SudokuBanner from "@/components/SudokuBanner";
 
 export const revalidate = 3600;
 
@@ -154,6 +155,10 @@ export default async function PostPage({ params }: Props) {
             <ShareButton />
           </div>
         </article>
+
+        <div className="article-sudoku-promo">
+          <SudokuBanner />
+        </div>
 
         <div className="ad-slot">
           <span className="ad-label">광고 · 쿠팡 파트너스</span>

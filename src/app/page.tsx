@@ -4,6 +4,7 @@ import { CATEGORIES, HEALTH_KEYS, HERO_IMAGE } from "@/lib/categories";
 import Icon from "@/components/Icon";
 import PostGrid, { PostCardItem, CardPost } from "@/components/PostGrid";
 import Subscribe from "@/components/Subscribe";
+import SudokuBanner from "@/components/SudokuBanner";
 
 // 메인페이지 — 디자인 기획서 §3 권장 순서:
 // 헤더 → 대표 배너 → 카테고리 → 인기 글 → 최신 글 → 추천 가이드 → 제품 리뷰 → 구독 → 푸터
@@ -44,6 +45,12 @@ export default async function HomePage() {
             <p>무리한 다이어트보다 지속 가능한 습관으로, 오늘보다 더 건강한 내일을 만듭니다.</p>
             <Link href="#guides" className="btn btn-primary">건강 가이드 살펴보기 →</Link>
           </div>
+        </div>
+      </section>
+
+      <section className="sudoku-promo-section" aria-label="매일 스도쿠">
+        <div className="wrap">
+          <SudokuBanner />
         </div>
       </section>
 

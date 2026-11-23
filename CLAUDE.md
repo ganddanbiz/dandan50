@@ -9,7 +9,7 @@
 | 언어 | 한국어 |
 | 주제 | **건강 전용** (2026-10-14 디자인 기획서로 전환) — 다이어트·혈당관리·건강식단·운동·건강정보·제품리뷰 |
 | 타겟 독자 | 40~60대 남녀, 중년 건강·체중 관리 관심층 |
-| AI 모델 | Claude Haiku 4.5 |
+| AI 모델 | **Codex(ChatGPT 구독, `scripts/writer.ts`) 집필**, 실패 시 Claude Haiku 4.5가 대신 씀 (2026-11-23~, 되돌리기 `WRITER=claude`) · 검수는 컨트롤타워 검수관(Claude) |
 | 이미지 | Unsplash API |
 | DB | Neon PostgreSQL (ap-southeast-1, dandan50 DB) |
 
